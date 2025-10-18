@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1> Gestor de Tareas BETA</h1>
+        </header>
+
+        <div class="add-task">
+            <input type="text" id="taskInput" placeholder="Escribe una nueva tarea...">
+            <button onclick="addTask()">Agregar Tarea</button>
+        </div>
+
+        <div class="tasks-container">
+            <ul id="tasksList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        // Cargar tareas al iniciar
+        document.addEventListener('DOMContentLoaded', loadTasks);
+
+        // Cargar todas las tareas
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_URL}/tasks`);
+                const tasks = await response.json();
+                renderTasks(tasks);
+            } catch (error) {
+                console.error('Error cargando tareas:', error);
+                alert('Error conectando con el servidor');
+            }
+        }
+
+        // Renderizar lista de tareas
+        function renderTasks(tasks) {
+            const tasksList = document.getElementById('tasksList');
+            tasksList.innerHTML = '';
+
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = task.completed ? 'completed' : '';
+                li.innerHTML = `
+                    <span onclick="toggleTask(${task.id}, ${!task.completed})">${task.title}</span>
+                    <button onclick="deleteTask(${task.id})">❌</button>
+                `;
+                tasksList.appendChild(li);
+            });
+        }
+
+        // Agregar nueva tarea
+        async function addTask() {
+            const input = document.getElementById('taskInput');
+            const title = input.value.trim();
+
+            if (!title) {
+                alert('Por favor escribe una tarea');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/tasks`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    loadTasks();
+                }
+            } catch (error) {
+                console.error('Error agregando tarea:', error);
+                alert('Error agregando tarea');
+            }
+        }
+
+        // Alternar estado de tarea
+        async function toggleTask(id, completed) {
+            try {
+                const response = await fetch(`${API_URL}/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ completed })
+                });
+
+                if (response.ok) {
+                    loadTasks();
+                }
+            } catch (error) {
+                console.error('Error actualizando tarea:', error);
+            }
+        }
+
+        // Eliminar tarea
+        async function deleteTask(id) {
+            if (!confirm('¿Estas seguro de eliminar esta tarea?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/tasks/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadTasks();
+                }
+            } catch (error) {
+                console.error('Error eliminando tarea:', error);
+            }
+        }
+
+        // Agregar tarea con Enter
+        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+    </script>
+</body>
+</html>
