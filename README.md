@@ -25,6 +25,49 @@ docker 20+
 docker compose 2+
 git
 
+## Instalación y Ejecucion
+Clonar repositorio
+bash
+git clone https://github.com/AlexisArevaloVal/todo-app.git
+cd todo-app
+
+# comandos utiles:
+# Levantar servicios en segundo plano
+docker-compose up -d
+
+# Ver logs en tiempo real
+docker-compose logs -f
+
+# Ver logs de un servicio especifico
+docker-compose logs -f backend
+
+# Detener servicios
+docker-compose down
+
+# Detener y eliminar volumenes (elimina datos)
+docker-compose down -v
+
+# Reconstruir imágenes desde cero
+docker-compose build --no-cache
+
+# Ver estado de los servicios
+docker-compose ps
+
+# Ejecutar comandos dentro de un contenedor
+docker-compose exec backend sh
+
+# links
+
+frontend: http://localhost:8080
+backend: http://localhost:3000/tasks
+
 # repositorio
 
 https://github.com/AlexisArevaloVal/todo-app.git
+
+# autor
+estudiante: Alexis Eduardo Arevalo Valenzuela
+
+# fecha de entrega
+
+18 de octubre del 2025
